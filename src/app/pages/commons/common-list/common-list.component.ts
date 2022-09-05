@@ -4,6 +4,7 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { Generic } from '../../../models/generic/generic';
+import { SearchCriteriaClient } from '../../../models/searchs/search-criteria-client';
 import { CommonService } from '../../../services/commons.service';
 
 @Directive()
@@ -21,11 +22,11 @@ export abstract class CommonListComponent<E extends Generic, S extends CommonSer
   totalRegistros=0;
   paginaActual = 0;
   totalPorPagina = 1;
-  orderBy ="asc";
+  orderBy ="ASC";
   column ="id";
-  pageSizeOptions = [5, 10, 25, 100];
+  pageSizeOptions = [1,2,5, 10, 25, 100];
   ariaLabel="Select page";
-
+  filterValue ="";
   titulo: string;
   lista: E[];
   dataSource: MatTableDataSource<E>;
@@ -48,7 +49,15 @@ export abstract class CommonListComponent<E extends Generic, S extends CommonSer
 
   private calculateRange(){
 
-    this.service.getAllPageable(this.paginaActual.toString(),this.totalPorPagina.toString(),this.orderBy,this.column)
+    const search: SearchCriteriaClient = new SearchCriteriaClient();
+    search.pageNumber = this.paginaActual;
+    search.pageSize = this.totalPorPagina;
+    search.searchBy =this.filterValue;
+    search.sortBy=this.column;
+    search.sortDirection =this.orderBy;
+    console.log(search,"search by");
+
+    this.service.getFilterCriteria(search)
     .subscribe(paginator => {
       console.log(paginator.totalElements)
       this.lista = paginator.content as E[];
@@ -59,26 +68,50 @@ export abstract class CommonListComponent<E extends Generic, S extends CommonSer
     });
   }
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    console.log('filterValue',filterValue);
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    const fil:string  = (event.target as HTMLInputElement).value;
+
+
+    if(fil !==null && fil !== ''){
+      console.log("fil", fil);
+      this.filterValue = fil;
+      this.calculateRange();
+    }else{
+      console.log("sin data fil");
+      this.filterValue ="";
+      this.calculateRange();
+    }
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
   sortData(sort: Sort) {
+    let order:String;
+    console.log("direction", sort.direction);
+
 
     if (!sort.active || sort.direction === '') {
+      console.log("1::");
+
       this.calculateRange();
     }else{
-      this.orderBy = sort.direction;
+      console.log("2::");
+      if (sort.direction == "asc"){
+        this.orderBy = "ASC";
+        console.log("1:::");
+      }
+      if (sort.direction == "desc") {
+        this.orderBy ="DESC";
+        console.log("2:::");
+      }
+
       this.column = sort.active;
+
       this.calculateRange();
 
     }
+  }
 
 
-}
   displayedColumns: string[] = ['id', 'name','isActive'];
 }

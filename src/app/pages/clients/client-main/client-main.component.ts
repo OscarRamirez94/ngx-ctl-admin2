@@ -14,27 +14,19 @@ import { CommonListComponent } from '../../commons/common-list/common-list.compo
 export class ClientMainComponent extends CommonListComponent<Client,ClientService> implements OnInit,AfterViewInit  {
 
 
-
   titulo:string = "Clientes";
-
 
   constructor( service:ClientService) {
     super(service);
 
   }
-
   ngAfterViewInit() {
 
-    //this.calculateRange();
-    //this.dataSource.paginator = this.paginator;
-    //this.dataSource.sort = this.sort;
+
   }
 
-
   ngOnInit() {
-    //this.calculateRange();
-    //this.dataSource.paginator = this.paginator;
-    //this.dataSource.sort = this.sort;
+
   }
 
 }
